@@ -1,12 +1,12 @@
 #!/system/bin/sh
-pipe=/data/adb/zerotier/run/pipe
+PIPE=/sdcard/zerotier/pipe
 
-cli_output=/data/adb/zerotier/run/cli.out
-cli_pid=/data/adb/zerotier/run/cli.pid
+cli_output=/sdcard/zerotier/cli.out
+cli_pid=/sdcard/zerotier/cli.pid
 
 help_text="Usage: zerotier.sh {start|stop|restart|status}"
 
-if [[ ! -p $pipe ]]; then
+if [[ ! -e $PIPE ]]; then
     echo "daemon not running"
     exit 1
 fi
@@ -20,7 +20,7 @@ on_receive() {
   exit 0
 }
 run() {
-  echo $cmd > $pipe
+  echo $cmd > $PIPE
 }
 
 trap 'on_receive' SIGUSR1

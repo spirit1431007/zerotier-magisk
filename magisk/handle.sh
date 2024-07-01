@@ -1,21 +1,21 @@
 #!/system/bin/sh
 
-MODDIR=${0%/*}
+# LD_LIBRARY_PATH for NDK
+export LD_LIBRARY_PATH=/system/lib64:/data/adb/zerotier/lib
 
 ZTROOT=/data/adb/zerotier
-ZTRUNTIME=$ZTROOT/run
-APPROOT=/sdcard/Android/zerotier
+APPROOT=/sdcard/zerotier
 
-ZTLOG=$ZTRUNTIME/zerotier.log
-daemon_log=$ZTRUNTIME/daemon.log
+ZTLOG=$APPROOT/zerotier.log
+daemon_log=$APPROOT/daemon.log
 
 log_cli() {
-  echo -e "$1" >> $CWD/cli.out
+  echo -e "$1" >> $APPROOT/cli.out
 }
 log() {
   t=`date +"%m-%d %H:%M:%S.%3N"`
-  echo -e "[$t][$$][L] $1" >> $daemon_log
-  log_cli $1
+  echo -e "[$t][$$][L] $@" >> $daemon_log
+  log_cli "$@"
 }
 _stop() {
   pid=`pidof zerotier-one`
@@ -64,8 +64,7 @@ _status() {
 
 if [[ $# == 2 && "$1" == "w" ]]; then
   read cmd < $2
-
-  CWD=`dirname $2`
+  rm -f $APPROOT/cli.out
 
   case "$cmd" in
     "start") _start;;
@@ -75,8 +74,11 @@ if [[ $# == 2 && "$1" == "w" ]]; then
     *) log "unknown command $cmd";;
   esac
 
-  read cpid < $CWD/cli.pid
-  kill -SIGUSR1 $cpid
+  if [[ -f "$APPROOT/cli.pid" ]]; then
+    read cpid < $APPROOT/cli.pid
+    rm -f $APPROOT/cli.pid
+    kill -SIGUSR1 $cpid
+  fi
 
   exit 0
 fi

@@ -6,12 +6,11 @@ cli_pid=/sdcard/zerotier/cli.pid
 
 help_text="Usage: zerotier.sh {start|stop|restart|status}"
 
-if [[ ! -e $PIPE ]]; then
+if [[ ! -f $PIPE ]]; then
     echo "daemon not running"
     exit 1
 fi
 
-rm -f $cli_output
 echo $$ > $cli_pid
 
 on_receive() {

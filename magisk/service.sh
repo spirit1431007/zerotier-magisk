@@ -2,6 +2,9 @@
 
 MODDIR=${0%/*}
 
+# LD_LIBRARY_PATH for NDK
+export LD_LIBRARY_PATH=/system/lib64:/data/adb/zerotier/lib
+
 ZTROOT=/data/adb/zerotier
 APPROOT=/sdcard/zerotier
 ZTLOG=$APPROOT/zerotier.log
@@ -11,7 +14,6 @@ rm -f $APPROOT/*
 
 ip rule add from all lookup main pref 1
 ip -6 rule add from all lookup main pref 1
-export LD_LIBRARY_PATH=/system/lib64:/data/adb/zerotier/lib
 
 $ZTROOT/zerotier-one -d >> $ZTLOG 2>&1 &
 
@@ -23,4 +25,4 @@ cp $ZTROOT/home/authtoken.secret $APPROOT/authtoken
 touch $PIPE
 chmod 666 $APPROOT/authtoken $PIPE
 
-inotifyd $MODDIR/handle.sh $PIPE::w   # why toybox inotifyd needs another character before colon?
+inotifyd $MODDIR/handle.sh $PIPE::w &>/dev/null &  # why toybox inotifyd needs another character before colon?

@@ -13,6 +13,8 @@ daemon_log=$ZTRUNTIME/daemon.log
 cli_output=$ZTRUNTIME/cli.out
 cli_pid=$ZTRUNTIME/cli.pid
 
+authtoken=$ZTROOT/home/authtoken.secret
+
 log() {
   t=`date +"%m-%d %H:%M:%S.%3N"`
   echo -e "[$t][$$][L] $1" >> $daemon_log
@@ -35,6 +37,8 @@ _stop() {
   fi
 
   wait
+  sleep 1 # sometimes it fails without sleeping
+
   log "stopped zerotier-one"
 }
 __start() {
@@ -54,7 +58,7 @@ _status() {
   if pid=`pidof zerotier-one`; then
     log_cli "\033[32m●\033[0m zerotier-one.service - ZeroTier One - Global Area Networking"
     log_cli "     Active: \033[32mactive (running)\033[0m"
-    log_cli "   Main PID: $pid (zerotier-one)" 
+    log_cli "   Main PID: $pid (zerotier-one)"
   else
     pid_=`cat $zerotier_root/home/zerotier-one.pid`
     log_cli "○ zerotier-one.service - ZeroTier One - Global Area Networking"
@@ -67,15 +71,17 @@ cd $ZTROOT
 rm -f $ZTRUNTIME
 mkfifo $pipe
 
-chmod 666 $pipe $cli_output $cli_pid
+chmod 666 $pipe $cli_output $cli_pid $authtoken
 
 ip rule add from all lookup main pref 1
+ip -6 rule add from all lookup main pref 1
 export LD_LIBRARY_PATH=/system/lib64:/data/adb/zerotier/lib
 
 if [[ -e /data/data/com.eventlowop.zerotier_magisk_app/files ]]; then
-	ln -sf $pipe $APPROOT/pipe
-  ln -sf $cli_output $APPROOT/cli.out
-  ln -sf $cli_pid $APPROOT/cli.pid
+	ln -sf $pipe        $APPROOT/pipe
+  ln -sf $cli_output  $APPROOT/cli.out
+  ln -sf $cli_pid     $APPROOT/cli.pid
+  ln -sf $authtoken   $APPROOT/authtoken
 fi
 
 __start

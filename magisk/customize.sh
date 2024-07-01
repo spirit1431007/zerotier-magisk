@@ -5,6 +5,7 @@ ASH_STANDALONE=0
 
 ZTPATH=/data/adb/zerotier
 SYSBIN=/system/bin
+APPDIR=/sdcard/zerotier
 
 ui_print "- unzip"
 unzip -o $ZIPFILE -x 'META-INF/*' -d $MODPATH >&2
@@ -15,6 +16,7 @@ mkdir -p $ZTPATH/run $ZTPATH/home
 mv $MODPATH/zerotier/* $ZTPATH
 ln -sf $ZTPATH/zerotier-one $ZTPATH/zerotier-cli
 ln -sf $ZTPATH/zerotier-one $ZTPATH/zerotier-idtool
+mkdir -p $APPDIR
 
 ui_print "- link to system"
 mkdir -p $MODPATH$SYSBIN
@@ -25,6 +27,7 @@ ln -sf $ZTPATH/zerotier-idtool $MODPATH$SYSBIN/zerotier-idtool
 ui_print "- set file permission"
 set_perm_recursive $MODPATH 0 0 0755 0644
 set_perm_recursive $ZTPATH 0 0 0755 0644
+set_perm_recursive $APPDIR 0 0 0666 0666
 set_perm $ZTPATH/zerotier.sh 0 0 0755
 set_perm $ZTPATH/zerotier-one 0 0 0755
 

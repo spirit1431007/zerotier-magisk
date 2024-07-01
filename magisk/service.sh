@@ -4,7 +4,7 @@ MODDIR=${0%/*}
 
 ZTROOT=/data/adb/zerotier
 ZTRUNTIME=$ZTROOT/run
-APPROOT=/data/data/com.eventlowop.zerotier_magisk_app/files
+APPROOT=/data/data/com.eventlowop.zerotier_magisk_app/app_flutter
 
 pipe=$ZTRUNTIME/pipe
 ZTLOG=$ZTRUNTIME/zerotier.log
@@ -68,20 +68,24 @@ _status() {
 }
 
 cd $ZTROOT
-rm -f $ZTRUNTIME
+rm -f $ZTRUNTIME/*
 mkfifo $pipe
 
-chmod 666 $pipe $cli_output $cli_pid $authtoken
+chmod 666 $pipe $authtoken
 
 ip rule add from all lookup main pref 1
 ip -6 rule add from all lookup main pref 1
 export LD_LIBRARY_PATH=/system/lib64:/data/adb/zerotier/lib
 
-if [[ -e /data/data/com.eventlowop.zerotier_magisk_app/files ]]; then
-	ln -sf $pipe        $APPROOT/pipe
+if [[ -e $APPROOT ]]; then
+  log "found controller app"
+
+  ln -sf $pipe        $APPROOT/pipe
   ln -sf $cli_output  $APPROOT/cli.out
   ln -sf $cli_pid     $APPROOT/cli.pid
   ln -sf $authtoken   $APPROOT/authtoken
+else
+  log "controller app not found"
 fi
 
 __start
